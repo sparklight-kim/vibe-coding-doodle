@@ -1,8 +1,14 @@
+import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from '../shared/utils/router/routeTree.gen'
+import './index.css'
+
+// Buffer polyfill for browser environment
+import { Buffer } from 'buffer'
+if (typeof window !== 'undefined') {
+  window.Buffer = Buffer
+}
 
 const router = createRouter({
   routeTree,

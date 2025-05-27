@@ -7,6 +7,10 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 // https://vite.dev/config/
 export default defineConfig(async () => {
   const mdx = await import('@mdx-js/rollup')
+  const remarkGfm = await import('remark-gfm')
+  const remarkFrontmatter = await import('remark-frontmatter')
+  const remarkMdxFrontmatter = await import('remark-mdx-frontmatter')
+
   return {
     plugins: [
       TanStackRouterVite({
@@ -19,8 +23,25 @@ export default defineConfig(async () => {
       react(),
       tailwindcss(),
       tsconfigPaths(),
-      mdx.default(),
+      mdx.default({
+        remarkPlugins: [
+          remarkGfm.default,
+          remarkFrontmatter.default,
+          remarkMdxFrontmatter.default
+        ],
+      }),
     ],
+    define: {
+      global: 'globalThis',
+    },
+    resolve: {
+      alias: {
+        buffer: 'buffer',
+      },
+    },
+    optimizeDeps: {
+      include: ['buffer'],
+    },
     build: {
       rollupOptions: {
         input: 'src/app/main.tsx',

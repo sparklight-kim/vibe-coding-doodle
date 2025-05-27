@@ -1,0 +1,25 @@
+---
+description: 사용되는 기술 스택
+globs: 
+alwaysApply: false
+---
+# language
+- typescript
+- javascript
+
+# framework
+- react19
+
+# router
+- tanstack router
+
+# state management
+- zustand
+
+# http
+- fetch (default library)
+- tanstack query
+
+# style
+- tailwindcss4.0
+- motion

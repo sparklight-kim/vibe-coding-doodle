@@ -1,0 +1,41 @@
+# Another Post
+
+이것은 두 번째 테스트 포스트입니다.
+
+## 다양한 MDX 기능들
+
+### 리스트
+
+- 첫 번째 항목
+- 두 번째 항목
+- 세 번째 항목
+
+### 인용구
+
+> "좋은 코드는 그 자체로 최고의 문서다." - Steve McConnell
+
+### 표
+
+| 기능 | TanStack Router | Next.js Router |
+|------|----------------|----------------|
+| 타입 안전성 | ✅ | ❌ |
+| 파일 기반 라우팅 | ✅ | ✅ |
+| 동적 import | ✅ | ✅ |
+
+## 커스텀 컴포넌트
+
+<InfoBox title="알림" type="info">
+  이것은 MDX 안에서 사용되는 커스텀 컴포넌트입니다.
+</InfoBox>
+
+export function InfoBox({ title, type, children }) {
+  const bgColor = type === 'info' ? 'bg-blue-100' : 'bg-gray-100'
+  const textColor = type === 'info' ? 'text-blue-800' : 'text-gray-800'
+  
+  return (
+    <div className={`p-4 rounded-lg ${bgColor} ${textColor} my-4`}>
+      <h4 className="font-semibold mb-2">{title}</h4>
+      <div>{children}</div>
+    </div>
+  )
+} 

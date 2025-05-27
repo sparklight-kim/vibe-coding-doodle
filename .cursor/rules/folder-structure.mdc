@@ -1,0 +1,34 @@
+---
+description: folder structure
+globs: 
+alwaysApply: false
+---
+# project architecture
+> FSD Architecture
+src/
+ |- app/
+ |   |- route/
+ |   |    ∟- [페이지경로]/ 
+ |   |
+ |   |- main.tsx
+ |   |- index.css
+ |   ∟- index.html
+ |
+ |- entities/
+ |   ∟- [엔티티명]/           (예: post/, user/ )
+ |         |- model/        (예: Post, PostComment, User)
+ |         |- api/        (예: usePost, usePostCommnet, useUser)
+ |         ∟- type/       (예: Post, PostComment, User)
+ |
+ |- features/
+ |   ∟- [기능명]/             (예: post/, auth/ )
+ |         |- ui/           (예: PostCard, PostHeader, PostBody, PostList, LoginForm)
+ |         |- api/        (예: usePost, usePostCommnet, login, use)
+ |         ∟- type/       (예: Post, PostComment)
+ |
+ ∟- shared/
+     |- components
+     |     ∟- ui
+     |- api
+     |- utils
+     ∟- types

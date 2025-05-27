@@ -1,0 +1,18 @@
+# 포스트를 찾을 수 없습니다
+
+요청하신 포스트를 찾을 수 없습니다.
+
+## 다른 포스트들을 확인해보세요
+
+[포스트 목록으로 돌아가기](/posts)
+
+<NotFoundMessage />
+
+export function NotFoundMessage() {
+  return (
+    <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 my-4">
+      <p className="font-bold">안내</p>
+      <p>존재하지 않는 포스트입니다. URL을 다시 확인해주세요.</p>
+    </div>
+  )
+} 

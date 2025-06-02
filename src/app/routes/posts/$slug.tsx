@@ -5,6 +5,7 @@ import { PostHeader } from '../../../features/posts/ui/PostHeader'
 import { PostToc } from '../../../features/posts/ui/PostToc'
 import { CodeBlock } from '../../../shared/components/ui/CodeBlock'
 import { extractTocFromMdx, parseMDXContent, type PostFrontmatter, type TocItem } from '../../../shared/utils/mdx'
+import { css } from "styled-system/css"
 
 export const Route = createFileRoute('/posts/$slug')({
   head: ({ params }) => ({
@@ -114,7 +115,7 @@ function PostPage() {
 
   if (loading) {
     return (
-      <div className="animate-pulse">
+      <div className={css({ animation: 'pulse' })}>
         <div className="h-8 bg-gray-200 rounded mb-4"></div>
         <div className="h-4 bg-gray-200 rounded mb-2"></div>
         <div className="h-4 bg-gray-200 rounded mb-8"></div>
@@ -144,7 +145,7 @@ function PostPage() {
           }} />
         )}
         <MDXProvider components={{ pre: CodeBlock }}>
-          <Suspense fallback={<div className="animate-pulse">컨텐츠 로딩 중...</div>}>
+          <Suspense fallback={<div className={css({ animation: 'pulse' })}>컨텐츠 로딩 중...</div>}>
             <PostContent />
           </Suspense>
         </MDXProvider>

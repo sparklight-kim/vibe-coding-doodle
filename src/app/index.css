@@ -1,9 +1,5 @@
 @layer reset, base, tokens, recipes, utilities;
 
-@import "tailwindcss";
-@import "tw-animate-css";
-@plugin "@tailwindcss/typography";
-
 html {
   scroll-behavior: smooth;
 }

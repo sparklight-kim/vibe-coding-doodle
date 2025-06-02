@@ -1,6 +1,8 @@
 import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
+import rehypePrism from 'rehype-prism-plus'
+import rehypeSlug from 'rehype-slug'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
@@ -28,6 +30,13 @@ export default defineConfig(async () => {
           remarkGfm.default,
           remarkFrontmatter.default,
           remarkMdxFrontmatter.default
+        ],
+        rehypePlugins: [
+          rehypeSlug,
+          [rehypePrism, {
+            showLineNumbers: true,
+            ignoreMissing: true,
+          }],
         ],
       }),
     ],

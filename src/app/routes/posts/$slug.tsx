@@ -1,6 +1,10 @@
+import { MDXProvider } from '@mdx-js/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { formatDate, parseMDXContent, type PostFrontmatter } from '../../../shared/utils/mdx'
+import { PostHeader } from '../../../features/posts/ui/PostHeader'
+import { PostToc } from '../../../features/posts/ui/PostToc'
+import { CodeBlock } from '../../../shared/components/ui/CodeBlock'
+import { extractTocFromMdx, parseMDXContent, type PostFrontmatter, type TocItem } from '../../../shared/utils/mdx'
 
 export const Route = createFileRoute('/posts/$slug')({
   head: ({ params }) => ({
@@ -42,6 +46,7 @@ function PostPage() {
   const [frontmatter, setFrontmatter] = useState<PostFrontmatter | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [toc, setToc] = useState<TocItem[]>([])
   
   useEffect(() => {
     async function loadFrontmatter() {
@@ -85,6 +90,18 @@ function PostPage() {
     loadFrontmatter()
   }, [slug])
   
+  useEffect(() => {
+    async function loadToc() {
+      const postPath = `../../../content/posts/${slug}.mdx`
+      if (postsRaw[postPath]) {
+        const content = await postsRaw[postPath]() as string
+        const mdxContent = parseMDXContent(content).data?.content || ''
+        setToc(extractTocFromMdx(mdxContent))
+      }
+    }
+    loadToc()
+  }, [slug])
+  
   // 해당 slug에 맞는 MDX 파일을 찾습니다
   const postPath = `../../../content/posts/${slug}.mdx`
   const PostContent = lazy(() => {
@@ -111,44 +128,28 @@ function PostPage() {
   }
 
   return (
-    <article className="prose prose-lg max-w-none">
-      {/* 에러 표시 */}
-      {error && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg not-prose">
-          <h3 className="text-yellow-800 font-semibold mb-2">⚠️ 포스트 로딩 중 오류 발생</h3>
-          <p className="text-yellow-700 text-sm">{error}</p>
-        </div>
-      )}
-
-      {frontmatter && (
-        <header className="mb-8 pb-8 border-b border-gray-200">
-          <h1 className="text-4xl font-bold mb-4">{frontmatter.title}</h1>
-          {frontmatter.description && (
-            <p className="text-xl text-gray-600 mb-4">{frontmatter.description}</p>
-          )}
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <time>작성일: {formatDate(frontmatter.date)}</time>
-            {frontmatter.updatedAt && (
-              <time>수정일: {formatDate(frontmatter.updatedAt)}</time>
-            )}
+    <div className="relative">
+      <article className="max-w-4xl mx-auto px-4 md:px-8 pb-20 md:pr-80 text-gray-900 dark:prose-invert">
+        {error && (
+          <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg not-prose">
+            <h3 className="text-yellow-800 dark:text-yellow-200 font-semibold mb-2">⚠️ 포스트 로딩 중 오류 발생</h3>
+            <p className="text-yellow-700 dark:text-yellow-100 text-sm">{error}</p>
           </div>
-          {frontmatter.tags && Array.isArray(frontmatter.tags) && frontmatter.tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {frontmatter.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </header>
-      )}
-      <Suspense fallback={<div className="animate-pulse">컨텐츠 로딩 중...</div>}>
-        <PostContent />
-      </Suspense>
-    </article>
+        )}
+        {frontmatter && (
+          <PostHeader frontmatter={{
+            ...frontmatter,
+            description: frontmatter.description || '',
+            updatedAt: frontmatter.updatedAt || '',
+          }} />
+        )}
+        <MDXProvider components={{ pre: CodeBlock }}>
+          <Suspense fallback={<div className="animate-pulse">컨텐츠 로딩 중...</div>}>
+            <PostContent />
+          </Suspense>
+        </MDXProvider>
+      </article>
+      <PostToc toc={toc} />
+    </div>
   )
 } 

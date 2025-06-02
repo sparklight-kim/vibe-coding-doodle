@@ -1,6 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
-import { formatDate, getPostSlugFromPath, parseMDXContent, type PostData } from '../../../shared/utils/mdx'
+import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useMemo, useState } from 'react'
+import { PostList } from '../../../features/posts/ui/PostList'
+import { getPostSlugFromPath, parseMDXContent, type PostData } from '../../../shared/utils/mdx'
+
+const PAGE_SIZE = 10
 
 export const Route = createFileRoute('/posts/')({
   component: PostsIndex,
@@ -17,126 +20,94 @@ function PostsIndex() {
   const [posts, setPosts] = useState<PostData[]>([])
   const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState<string[]>([])
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     async function loadPosts() {
       try {
         const postPromises = Object.entries(postModules)
-          .filter(([path]) => !path.includes('not-found.mdx')) // not-found 파일은 제외
-          .map(async ([path, loader]) => {
-            const content = await loader() as string
-            const parseResult = parseMDXContent(content)
+          .map(async ([path, mod]) => {
             const slug = getPostSlugFromPath(path)
-            
-            if (!parseResult.success) {
-              console.warn(`포스트 파싱 실패 (${slug}):`, parseResult.error)
-              setErrors(prev => [...prev, `${slug}: ${parseResult.error}`])
-              
-              // 파싱 실패 시 기본값 사용 (부분적 데이터가 있다면)
-              if (parseResult.data?.frontmatter) {
-                return {
-                  slug,
-                  frontmatter: parseResult.data.frontmatter,
-                  content: '', // 목록에서는 content가 필요없음
-                }
-              }
-              return null
-            }
-            
+            const raw = (await (mod as any)()) as string
+            const parsed = await parseMDXContent(raw)
+            if (!parsed.success) return null
+            if (!parsed.data.frontmatter.published) return null
             return {
               slug,
-              frontmatter: parseResult.data.frontmatter,
-              content: '', // 목록에서는 content가 필요없음
+              frontmatter: {
+                ...parsed.data.frontmatter,
+                description: parsed.data.frontmatter.description || '',
+                updatedAt: parsed.data.frontmatter.updatedAt || '',
+              },
+              content: '',
             }
           })
-
-        const loadedPosts = (await Promise.all(postPromises))
-          .filter((post): post is PostData => post !== null)
-        
-        // published가 true인 포스트만 필터링하고 날짜순으로 정렬
-        const publishedPosts = loadedPosts
-          .filter(post => post.frontmatter.published)
-          .sort((a, b) => new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime())
-        
-        setPosts(publishedPosts)
-      } catch (error) {
-        console.error('Failed to load posts:', error)
-        setErrors(prev => [...prev, `전체 로딩 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`])
+        const loaded = (await Promise.all(postPromises)).filter(Boolean) as PostData[]
+        // 날짜 내림차순 정렬
+        loaded.sort((a, b) => new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime())
+        setPosts(loaded)
+      } catch (e) {
+        setErrors([String(e)])
       } finally {
         setLoading(false)
       }
     }
-
     loadPosts()
   }, [])
 
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">포스트를 불러오는 중...</p>
-      </div>
-    )
+  // 페이지네이션
+  const total = posts.length
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const pagedPosts = useMemo(() => posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE), [posts, page])
+
+  // Post 타입 변환 (description, updatedAt string 보장)
+  const postListData = pagedPosts.map(post => ({
+    ...post,
+    frontmatter: {
+      ...post.frontmatter,
+      description: post.frontmatter.description || '',
+      updatedAt: post.frontmatter.updatedAt || '',
+    },
+  }))
+
+  // 페이지 이동
+  const goPage = (p: number) => setPage(Math.max(1, Math.min(totalPages, p)))
+
+  // 페이지네이션 번호 계산
+  const getPageNumbers = () => {
+    let start = Math.max(1, page - 2)
+    let end = Math.min(totalPages, start + 4)
+    if (end - start < 4) start = Math.max(1, end - 4)
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i)
   }
 
-  return (
-    <div>
-      {/* 에러 표시 */}
-      {errors.length > 0 && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 className="text-yellow-800 font-semibold mb-2">⚠️ 포스트 로딩 중 오류 발생</h3>
-          <ul className="text-yellow-700 text-sm space-y-1">
-            {errors.map((error, index) => (
-              <li key={index}>• {error}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+  if (loading) return <div className="container mx-auto px-4 md:px-8 py-8">로딩 중...</div>
+  if (errors.length > 0) return <div className="container mx-auto px-4 md:px-8 py-8 text-red-500">{errors.join(', ')}</div>
 
-      <div className="grid gap-6">
-        {posts.map((post) => (
-          <article
-            key={post.slug}
-            className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
-          >
-            <h2 className="text-xl font-semibold mb-2">
-              <Link
-                to="/posts/$slug"
-                params={{ slug: post.slug }}
-                className="text-blue-600 hover:text-blue-800"
-              >
-                {post.frontmatter.title}
-              </Link>
-            </h2>
-            {post.frontmatter.description && (
-              <p className="text-gray-600 mb-3">{post.frontmatter.description}</p>
-            )}
-            <div className="flex items-center gap-4 text-sm text-gray-500">
-              <time>{formatDate(post.frontmatter.date)}</time>
-              {post.frontmatter.updatedAt && (
-                <span>수정: {formatDate(post.frontmatter.updatedAt)}</span>
-              )}
-            </div>
-            {post.frontmatter.tags && Array.isArray(post.frontmatter.tags) && post.frontmatter.tags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {post.frontmatter.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </article>
+  return (
+    <div className="container mx-auto px-4 md:px-8 py-8">
+      <h1 className="text-3xl font-bold mb-8">포스트</h1>
+      <PostList posts={postListData} />
+      {/* 페이지네이션 */}
+      <div className="flex items-center justify-center gap-2 mt-8">
+        <button onClick={() => goPage(1)} disabled={page === 1} className="px-2 py-1">{'<<'}</button>
+        <button onClick={() => goPage(page - 1)} disabled={page === 1} className="px-2 py-1">{'<'}</button>
+        {getPageNumbers().map(n => (
+          <button key={n} onClick={() => goPage(n)} className={`px-3 py-1 rounded ${n === page ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>{n}</button>
         ))}
+        <button onClick={() => goPage(page + 1)} disabled={page === totalPages} className="px-2 py-1">{'>'}</button>
+        <button onClick={() => goPage(totalPages)} disabled={page === totalPages} className="px-2 py-1">{'>>'}</button>
+        <span className="ml-4">/</span>
+        <input
+          type="number"
+          min={1}
+          max={totalPages}
+          value={page}
+          onChange={e => goPage(Number(e.target.value))}
+          className="w-16 px-2 py-1 border rounded ml-2"
+        />
+        <span className="ml-2">페이지</span>
       </div>
-      
-      {posts.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">게시된 포스트가 없습니다.</p>
-        </div>
-      )}
     </div>
   )
 } 

@@ -1,3 +1,7 @@
+import remarkGfm from 'remark-gfm'
+import remarkParse from 'remark-parse'
+import { unified } from 'unified'
+import { visit } from 'unist-util-visit'
 import { z } from 'zod'
 
 // Zod 스키마 정의
@@ -175,4 +179,26 @@ export function formatDate(date: string | Date, locale: string = 'ko-KR'): strin
   } catch {
     return typeof date === 'string' ? date : date.toISOString().split('T')[0]
   }
+}
+
+export interface TocItem {
+  id: string
+  text: string
+  depth: number
+}
+
+export function extractTocFromMdx(mdxContent: string): TocItem[] {
+  const tree = unified().use(remarkParse).use(remarkGfm).parse(mdxContent)
+  const toc: TocItem[] = []
+  visit(tree, 'heading', (node: any) => {
+    if (node.depth < 2 || node.depth > 3) return
+    const text = node.children.map((c: any) => c.value || '').join('')
+    const id = text
+      .toLowerCase()
+      .replace(/[^a-z0-9가-힣\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+    toc.push({ id, text, depth: node.depth })
+  })
+  return toc
 } 

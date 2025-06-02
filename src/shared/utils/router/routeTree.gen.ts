@@ -11,12 +11,19 @@
 // Import Routes
 
 import { Route as rootRoute } from './../../../app/routes/__root'
+import { Route as TagsImport } from './../../../app/routes/tags'
 import { Route as PostsImport } from './../../../app/routes/posts'
 import { Route as IndexImport } from './../../../app/routes/index'
 import { Route as PostsIndexImport } from './../../../app/routes/posts/index'
 import { Route as PostsSlugImport } from './../../../app/routes/posts/$slug'
 
 // Create/Update Routes
+
+const TagsRoute = TagsImport.update({
+  id: '/tags',
+  path: '/tags',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const PostsRoute = PostsImport.update({
   id: '/posts',
@@ -60,6 +67,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsImport
       parentRoute: typeof rootRoute
     }
+    '/tags': {
+      id: '/tags'
+      path: '/tags'
+      fullPath: '/tags'
+      preLoaderRoute: typeof TagsImport
+      parentRoute: typeof rootRoute
+    }
     '/posts/$slug': {
       id: '/posts/$slug'
       path: '/$slug'
@@ -94,12 +108,14 @@ const PostsRouteWithChildren = PostsRoute._addFileChildren(PostsRouteChildren)
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/posts': typeof PostsRouteWithChildren
+  '/tags': typeof TagsRoute
   '/posts/$slug': typeof PostsSlugRoute
   '/posts/': typeof PostsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/tags': typeof TagsRoute
   '/posts/$slug': typeof PostsSlugRoute
   '/posts': typeof PostsIndexRoute
 }
@@ -108,27 +124,30 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/posts': typeof PostsRouteWithChildren
+  '/tags': typeof TagsRoute
   '/posts/$slug': typeof PostsSlugRoute
   '/posts/': typeof PostsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/posts' | '/posts/$slug' | '/posts/'
+  fullPaths: '/' | '/posts' | '/tags' | '/posts/$slug' | '/posts/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/posts/$slug' | '/posts'
-  id: '__root__' | '/' | '/posts' | '/posts/$slug' | '/posts/'
+  to: '/' | '/tags' | '/posts/$slug' | '/posts'
+  id: '__root__' | '/' | '/posts' | '/tags' | '/posts/$slug' | '/posts/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PostsRoute: typeof PostsRouteWithChildren
+  TagsRoute: typeof TagsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PostsRoute: PostsRouteWithChildren,
+  TagsRoute: TagsRoute,
 }
 
 export const routeTree = rootRoute
@@ -142,7 +161,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/posts"
+        "/posts",
+        "/tags"
       ]
     },
     "/": {
@@ -154,6 +174,9 @@ export const routeTree = rootRoute
         "/posts/$slug",
         "/posts/"
       ]
+    },
+    "/tags": {
+      "filePath": "tags.tsx"
     },
     "/posts/$slug": {
       "filePath": "posts/$slug.tsx",

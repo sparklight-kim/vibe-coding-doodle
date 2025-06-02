@@ -1,25 +1,36 @@
 ---
-description: 사용되는 기술 스택
+description: 
 globs: 
 alwaysApply: false
 ---
-# language
+# Tech Stack
+
+## language
 - typescript
 - javascript
 
-# framework
-- react19
+## framework
+- react19.1
 
-# router
+## build
+- vite
+
+## router
 - tanstack router
 
-# state management
+## state management
 - zustand
 
-# http
-- fetch (default library)
+## http
+- axios
 - tanstack query
 
-# style
-- tailwindcss4.0
+## style
+- pandacss
 - motion
+
+## validation
+- typescript (compile validator)
+- zod (runtime validator)
+- prettier (code formatter)
+- eslint (code linter)

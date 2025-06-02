@@ -1,6 +1,45 @@
 import { createRootRoute, HeadContent, Link, Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { DarkModeToggle } from '@/shared/components/ui/DarkModeToggle'
+import { styled } from "styled-system/jsx"
+
+const NavBar = styled('nav', {
+  base: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 30,
+    bg: { base: 'whiteAlpha.900', _dark: 'gray.900/90' },
+    backdropFilter: 'blur(8px)',
+    borderBottomWidth: '1px',
+    borderColor: { base: 'gray.200', _dark: 'gray.800' },
+  },
+})
+
+const NavInner = styled('div', {
+  base: {
+    maxW: '1280px',
+    mx: 'auto',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+    px: { base: 4, md: 8 },
+    py: 3,
+  },
+})
+
+const NavLinks = styled('div', { base: { display: 'flex', gap: 4 } })
+
+const StyledLink = styled(Link, {
+  base: {
+    color: 'blue.600',
+    fontWeight: 'medium',
+    _hover: { color: 'blue.800' },
+    _activeLink: { color: 'blue.800', fontWeight: 'bold' },
+  },
+})
+
+const NavRight = styled('div', { base: { display: 'flex', alignItems: 'center', gap: 2 } })
 
 export const Route = createRootRoute({
   head: () => ({
@@ -47,18 +86,30 @@ export const Route = createRootRoute({
   component: () => (
     <>
       <HeadContent />
-      <nav className="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b border-gray-200 dark:border-gray-800">
-        <div className="container mx-auto flex items-center justify-between gap-4 px-4 md:px-8 py-3">
-          <div className="flex gap-4">
-            <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium" activeProps={{ className: 'text-blue-800 font-bold' }}>홈</Link>
-            <Link to="/posts" className="text-blue-600 hover:text-blue-800 font-medium" activeProps={{ className: 'text-blue-800 font-bold' }}>포스트</Link>
-            <Link to="/tags" className="text-blue-600 hover:text-blue-800 font-medium" activeProps={{ className: 'text-blue-800 font-bold' }}>태그</Link>
-          </div>
-          <div className="flex items-center gap-2">
+      <NavBar>
+        <NavInner>
+          <NavLinks>
+            <StyledLink
+              to="/"
+            >
+              홈
+            </StyledLink>
+            <StyledLink
+              to="/posts"
+            >
+              포스트
+            </StyledLink>
+            <StyledLink
+              to="/tags"
+            >
+              태그
+            </StyledLink>
+          </NavLinks>
+          <NavRight>
             <DarkModeToggle />
-          </div>
-        </div>
-      </nav>
+          </NavRight>
+        </NavInner>
+      </NavBar>
       <Outlet />
       <TanStackRouterDevtools />
     </>

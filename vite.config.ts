@@ -1,4 +1,3 @@
-import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import rehypePrism from 'rehype-prism-plus'
@@ -23,7 +22,6 @@ export default defineConfig(async () => {
         routeFileIgnorePrefix: '-',
       }),
       react(),
-      tailwindcss(),
       tsconfigPaths(),
       mdx.default({
         remarkPlugins: [

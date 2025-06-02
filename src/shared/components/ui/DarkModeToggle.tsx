@@ -1,6 +1,28 @@
 import { Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { css } from "styled-system/css"
+import { styled } from "styled-system/jsx"
+
+const ToggleButton = styled('button', {
+  base: {
+    w: 10,
+    h: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    rounded: 'full',
+    borderWidth: '1px',
+    borderColor: { base: 'gray.300', _dark: 'gray.700' },
+    bg: { base: 'white', _dark: 'gray.900' },
+    transitionProperty: 'colors',
+    _hover: {
+      bg: { base: 'gray.100', _dark: 'gray.800' },
+    },
+  },
+})
+
+const Icon = styled('svg', {
+  base: { w: 5, h: 5 },
+})
 
 export function DarkModeToggle() {
   const [mode, setMode] = useState<'light' | 'dark' | 'system'>('system')
@@ -48,36 +70,8 @@ export function DarkModeToggle() {
   }
 
   return (
-    <button
-      onClick={toggle}
-      className={css({
-        w: 10,
-        h: 10,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        rounded: 'full',
-        borderWidth: '1px',
-        borderColor: {
-          base: 'gray.300',
-          _dark: 'gray.700',
-        },
-        bg: {
-          base: 'white',
-          _dark: 'gray.900',
-        },
-        transitionProperty: 'colors',
-        _hover: {
-          bg: {
-            base: 'gray.100',
-            _dark: 'gray.800',
-          },
-        },
-      })}
-      aria-label="다크 모드 토글"
-      title="다크 모드 토글"
-    >
-      {isDark ? <Moon className={css({ w: 5, h: 5, color: 'yellow.400' })} /> : <Sun className={css({ w: 5, h: 5, color: 'gray.700' })} />}
-    </button>
+    <ToggleButton onClick={toggle} aria-label="다크 모드 토글" title="다크 모드 토글">
+      {isDark ? <Moon className={Icon()} style={{ color: 'var(--colors-yellow-400)' }} /> : <Sun className={Icon()} style={{ color: 'var(--colors-gray-700)' }} />}
+    </ToggleButton>
   )
 } 

@@ -1,3 +1,4 @@
+import Header from '@/features/layout/ui/Header';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
@@ -5,5 +6,10 @@ export const Route = createFileRoute('/')({
 });
 
 function RouteComponent() {
-  return <div>Hello &quot;/&quot;!</div>;
+  return (
+    <>
+      <Header />
+      <div>Hello &quot;/&quot;!</div>
+    </>
+  );
 }

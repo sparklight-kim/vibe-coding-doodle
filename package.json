@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.79.0",
-    "@tanstack/react-query-devtools": "^5.79.2",
+    "@tanstack/react-query-devtools": "^5.79.0",
     "@tanstack/react-router": "^1.120.13",
     "@tanstack/react-router-devtools": "^1.120.13",
     "axios": "^1.9.0",
@@ -48,6 +48,7 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.33.1",
     "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.0"
   }
 }

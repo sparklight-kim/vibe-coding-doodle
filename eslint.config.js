@@ -26,6 +26,7 @@ export default [
     plugins: { 'react-hooks': reactHooks },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      'react/react-in-jsx-scope': 'off',
     },
   },
   prettierRecommended,
